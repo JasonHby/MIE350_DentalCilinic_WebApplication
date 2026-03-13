@@ -1,6 +1,5 @@
 /**
- * 后端 API 基础地址
- * 开发时 Vite 会使用 .env.development 中的 VITE_API_URL
+ * Backend API base URL (from .env.development in dev).
  */
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
@@ -11,7 +10,7 @@ export function getApiUrl(path) {
 }
 
 /**
- * 通用请求封装
+ * Generic API request helper.
  */
 export async function apiRequest(path, options = {}) {
   const url = getApiUrl(path)
@@ -29,7 +28,7 @@ export async function apiRequest(path, options = {}) {
   return data
 }
 
-/** 登录 */
+/** Login */
 export async function login(username, password) {
   return apiRequest('/api/auth/login', {
     method: 'POST',
@@ -37,12 +36,12 @@ export async function login(username, password) {
   })
 }
 
-/** 仪表盘统计 */
+/** Dashboard stats */
 export async function getDashboardStats() {
   return apiRequest('/api/dashboard/stats')
 }
 
-/** 患者列表 */
+/** Patient list */
 export async function getPatients() {
   return apiRequest('/api/patients')
 }

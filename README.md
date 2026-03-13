@@ -1,28 +1,28 @@
 # MIE350_DentalCilinic_WebApplication
 MIE350 team
 
-## 快速启动（前后端连接）
+## Quick start (frontend + backend)
 
-1. **启动后端**（在项目根目录）：
+1. **Start the backend** (from project root):
    ```bash
    cd backend
    ./mvnw spring-boot:run
    ```
-   后端默认运行在 `http://localhost:8080`。
+   Backend runs at `http://localhost:8080`.
 
-2. **启动前端**：
+2. **Start the frontend**:
    ```bash
    cd frontend
    npm install
    npm run dev
    ```
-   前端默认运行在 `http://localhost:5173`，会请求后端 `http://localhost:8080` 的 API。
+   Frontend runs at `http://localhost:5173` and calls the backend API at `http://localhost:8080`.
 
-3. **测试登录**：浏览器打开 `http://localhost:5173`，使用测试账号登录：
-   - 用户名: `receptionist`，密码: `dental123`
-   - 或 `dentist` / `dental456`，`admin` / `dental789`
+3. **Test login**: open `http://localhost:5173` and sign in with:
+   - `receptionist` / `dental123`
+   - or `dentist` / `dental456`, `admin` / `dental789`
 
-前端通过 `frontend/.env.development` 中的 `VITE_API_URL` 配置后端地址，部署时修改该变量即可。
+Set `VITE_API_URL` in `frontend/.env.development` to your backend URL when deploying.
 
 ---
 

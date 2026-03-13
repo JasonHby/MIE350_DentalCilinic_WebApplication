@@ -1,5 +1,4 @@
-# Render 一键部署配置（免费档可用）
-# 文档: https://render.com/docs/blueprint-spec
+# Render deployment (free tier). See https://render.com/docs/blueprint-spec
 services:
   - type: web
     name: dental-clinic-api

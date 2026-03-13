@@ -1,4 +1,4 @@
-# 构建时请将 context 设为 backend 目录：docker build -t dental-backend ./backend
+# Build with context = backend: docker build -t dental-backend ./backend
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .

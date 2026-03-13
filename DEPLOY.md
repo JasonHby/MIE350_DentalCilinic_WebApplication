@@ -1,102 +1,100 @@
-# 后端公网部署说明
+# Deploy backend to the public internet
 
-将牙科诊所后端 API 部署到公网后，你的 Appsmith 前端（https://jmoney.appsmith.com）即可通过公网 URL 调用接口。
+After deploying the Dental Clinic backend API, your Appsmith frontend (e.g. https://jmoney.appsmith.com) can call it via the public URL.
 
 ---
 
-## 方式一：Render（推荐，免费）
+## Option 1: Render (recommended, free tier)
 
-[Render](https://render.com) 提供免费档 Web 服务，适合演示与前后端联调。
+[Render](https://render.com) offers a free tier for web services, suitable for demos and frontend integration.
 
-### 步骤
+### Steps
 
-1. **注册 / 登录**  
-   打开 [https://render.com](https://render.com)，用 GitHub 登录。
+1. **Sign up / log in**  
+   Go to [https://render.com](https://render.com) and log in with GitHub.
 
-2. **用 GitHub 仓库部署**  
-   - 在 Render 控制台点击 **New** → **Web Service**。  
-   - 连接你的 GitHub，选择 **MIE350_DentalCilinic_WebApplication** 仓库。  
-   - 若已有 `render.yaml`，Render 会识别并提示用 Blueprint 部署，选 **Apply** 即可。  
-   - 若未识别，则手动设置：
-     - **Name**: `dental-clinic-api`（或任意名称）
-     - **Region**: 选离你近的（如 Singapore）
-     - **Root Directory**: 留空（使用仓库根目录）
+2. **Deploy from GitHub**  
+   - In the dashboard click **New** → **Web Service**.  
+   - Connect GitHub and select the **MIE350_DentalCilinic_WebApplication** repository.  
+   - If Render detects `render.yaml`, it will suggest applying the Blueprint; click **Apply**.  
+   - If not, configure manually:
+     - **Name**: `dental-clinic-api` (or any name)
+     - **Region**: e.g. Singapore
+     - **Root Directory**: leave empty
      - **Runtime**: **Docker**
      - **Dockerfile Path**: `backend/Dockerfile`
      - **Docker Context**: `backend`
-     - **Instance Type**: 选 Free
+     - **Instance Type**: Free
 
-3. **创建并部署**  
-   点击 **Create Web Service**，等待构建与部署完成（约 3–5 分钟）。
+3. **Create and deploy**  
+   Click **Create Web Service** and wait for the build and deploy (about 3–5 minutes).
 
-4. **获取公网地址**  
-   部署成功后，在服务详情页会看到类似：  
+4. **Get the public URL**  
+   After deployment you’ll see a URL like:  
    `https://dental-clinic-api-xxxx.onrender.com`  
-   这就是你的 **后端 API 基础地址**。
+   This is your **API base URL**.
 
-5. **在 Appsmith 中填写**  
-   - 在 Appsmith 的 API / 数据源里，Base URL 填：  
-     `https://dental-clinic-api-xxxx.onrender.com`  
-   - 接口路径保持为：`/api/...`（例如 `/api/auth/login`、`/api/patients`）。
+5. **Use it in Appsmith**  
+   In your Appsmith API / datasource, set Base URL to:  
+   `https://dental-clinic-api-xxxx.onrender.com`  
+   Keep paths as `/api/...` (e.g. `/api/auth/login`, `/api/patients`).
 
-**注意**：Render 免费实例约 15 分钟无访问会休眠，首次访问可能需等待几十秒唤醒。
-
----
-
-## 方式二：Railway
-
-[Railway](https://railway.app) 同样支持 Docker，部署流程类似。
-
-1. 登录 [railway.app](https://railway.app)，用 GitHub 登录。  
-2. **New Project** → **Deploy from GitHub repo**，选择本仓库。  
-3. 在项目设置中：
-   - **Root Directory**: 设为 `backend`
-   - **Build**: 选择 **Dockerfile**
-   - **Start Command**: 留空（镜像内已包含 `java -jar app.jar`）
-4. 在 **Variables** 中可添加 `PORT=8080`（多数情况下 Railway 会自动注入）。  
-5. 在 **Settings** → **Networking** 中生成 **Public URL**，即你的公网 API 地址。  
-6. 在 Appsmith 里把该 URL 填为 API Base URL，路径仍为 `/api/...`。
+**Note:** Free instances spin down after ~15 minutes of no traffic; the first request after that may take a short time to wake up.
 
 ---
 
-## 方式三：本地临时公网（ngrok）
+## Option 2: Railway
 
-仅用于本地调试、不部署到云时，可用 ngrok 把本机 8080 暴露到公网。
+[Railway](https://railway.app) also supports Docker.
 
-1. 安装 [ngrok](https://ngrok.com/download)。  
-2. 本地启动后端：
+1. Log in at [railway.app](https://railway.app) with GitHub.  
+2. **New Project** → **Deploy from GitHub repo**, select this repo.  
+3. In project settings:
+   - **Root Directory**: `backend`
+   - **Build**: Dockerfile
+   - **Start Command**: leave empty (image runs `java -jar app.jar`)
+4. In **Variables** you can add `PORT=8080` (Railway often injects it automatically).  
+5. Under **Settings** → **Networking**, create a **Public URL** and use it as the API base URL in Appsmith; paths remain `/api/...`.
+
+---
+
+## Option 3: Local tunnel (ngrok)
+
+For local testing without deploying to the cloud, use [ngrok](https://ngrok.com) to expose port 8080.
+
+1. Install [ngrok](https://ngrok.com/download).  
+2. Start the backend locally:
    ```bash
    cd backend
    ./mvnw spring-boot:run
    ```
-3. 新开终端执行：
+3. In another terminal:
    ```bash
    ngrok http 8080
    ```
-4. 终端中会显示类似 `https://xxxx.ngrok-free.app` 的地址，在 Appsmith 里用该地址作为 Base URL。  
-5. 本机关闭后端或 ngrok 后，该地址会失效。
+4. Use the shown URL (e.g. `https://xxxx.ngrok-free.app`) as the Base URL in Appsmith.  
+5. The URL stops working when you stop the backend or ngrok.
 
 ---
 
-## CORS 与前端
+## CORS and frontend
 
-后端已允许以下来源跨域访问 `/api/**`：
+The backend allows these origins for `/api/**`:
 
 - `https://jmoney.appsmith.com`
 - `https://app.appsmith.com`
-- 以及本地开发地址（如 localhost:5173）
+- Plus local dev origins (e.g. localhost:5173)
 
-若你使用其他前端域名，需在 `backend/src/main/java/com/dentalclinic/WebConfig.java` 的 `allowedOrigins` 中追加该域名并重新部署。
+To allow another frontend domain, add it to `allowedOrigins` in `backend/src/main/java/com/dentalclinic/WebConfig.java` and redeploy.
 
 ---
 
-## 数据说明
+## Data
 
-当前使用 **H2 内存数据库**，数据不落盘。每次服务重启（包括 Render 休眠后唤醒）后，数据会恢复为 `data.sql` 中的初始数据。  
-测试账号：
+The app uses an **in-memory H2 database**. Data is not persisted; after each restart (including Render spin-up), it is reset from `data.sql`. Test accounts:
 
-- 用户名: `receptionist`，密码: `dental123`
-- 用户名: `dentist`，密码: `dental456`
-- 用户名: `admin`，密码: `dental789`
+- `receptionist` / `dental123`
+- `dentist` / `dental456`
+- `admin` / `dental789`
 
-若后续需要持久化，可改为使用 Render/Railway 提供的 PostgreSQL 等数据库，再修改 `application.properties` 和依赖即可。
+For persistent storage, you can switch to a hosted database (e.g. PostgreSQL on Render/Railway) and update `application.properties` and dependencies.
