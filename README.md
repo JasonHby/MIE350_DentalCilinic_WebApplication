@@ -1,37 +1,6 @@
 # MIE350_DentalCilinic_WebApplication
 MIE350 team
 
-## Quick start (frontend + backend)
-
-1. **Start the backend** (from project root):
-   ```bash
-   cd backend
-   ./mvnw spring-boot:run
-   ```
-   Backend runs at `http://localhost:8080`.
-
-2. **Start the frontend**:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-   Frontend runs at `http://localhost:5173` and calls the backend API at `http://localhost:8080`.
-
-3. **Test login**: open `http://localhost:5173` and sign in with:
-   - `receptionist` / `dental123`
-   - or `dentist` / `dental456`, `admin` / `dental789`
-
-Set `VITE_API_URL` in `frontend/.env.development` to your backend URL when deploying.
-
----
-
-# Dental Clinic IMS - Backend API Documentation (Frontend Team Reference)
-
-Base URL: `http://localhost:8080` (replace with actual domain when deployed)
-
----
-
 ## 1. Data Schema (Table Structure)
 
 | Table | Description |
