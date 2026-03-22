@@ -38,14 +38,14 @@ public class PatientService {
 
     public Patient update(Long id, Patient updated) {
         Patient existing = findById(id);
-        existing.setFirstName(updated.getFirstName());
-        existing.setLastName(updated.getLastName());
-        existing.setDateOfBirth(updated.getDateOfBirth());
-        existing.setGender(updated.getGender());
-        existing.setPhone(updated.getPhone());
-        existing.setEmail(updated.getEmail());
-        existing.setAddress(updated.getAddress());
-        existing.setMedicalHistory(updated.getMedicalHistory());
+        if (updated.getFirstName() != null) existing.setFirstName(updated.getFirstName());
+        if (updated.getLastName() != null) existing.setLastName(updated.getLastName());
+        if (updated.getDateOfBirth() != null) existing.setDateOfBirth(updated.getDateOfBirth());
+        if (updated.getGender() != null) existing.setGender(updated.getGender());
+        if (updated.getPhone() != null) existing.setPhone(updated.getPhone());
+        if (updated.getEmail() != null) existing.setEmail(updated.getEmail());
+        if (updated.getAddress() != null) existing.setAddress(updated.getAddress());
+        if (updated.getMedicalHistory() != null) existing.setMedicalHistory(updated.getMedicalHistory());
         return repo.save(existing);
     }
 

@@ -61,7 +61,10 @@ public class InventoryService {
         if (supplier != null) item.setSupplier(supplier);
         repo.save(item);
 
-        writeLog(id, "Restock", quantity, prevQty, item.getQuantity(), "Manual restock");
+        String reason = supplier != null && !supplier.isBlank()
+                ? "Restocked from " + supplier
+                : "Manual restock";
+        writeLog(id, "Restock", quantity, prevQty, item.getQuantity(), reason);
         return item;
     }
 
