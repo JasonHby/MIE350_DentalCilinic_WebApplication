@@ -1,124 +1,77 @@
-import { useState, useEffect } from 'react'
-import { login, getDashboardStats } from './api'
+import { useState } from 'react'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import ProtectedLayout from './components/Layout'
+import { ToastStack } from './components/Common'
+import { readStoredUser, saveStoredUser } from './lib/session'
+import BillingPage from './pages/BillingPage'
+import DashboardPage from './pages/DashboardPage'
+import InventoryPage from './pages/InventoryPage'
+import LoginPage from './pages/LoginPage'
+import PatientDetailPage from './pages/PatientDetailPage'
+import PatientsPage from './pages/PatientsPage'
+import PublicHome from './pages/PublicHome'
+import SchedulePage from './pages/SchedulePage'
+import VisitPage from './pages/VisitPage'
 import './App.css'
 
-function App() {
-  const [user, setUser] = useState(() => {
-    try {
-      const s = localStorage.getItem('dental_user')
-      return s ? JSON.parse(s) : null
-    } catch {
-      return null
-    }
-  })
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [stats, setStats] = useState(null)
-  const [statsError, setStatsError] = useState('')
-
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    try {
-      const data = await login(username, password)
-      setUser(data)
-      localStorage.setItem('dental_user', JSON.stringify(data))
-    } catch (err) {
-      setError(err.message || 'Login failed')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('dental_user')
-    setStats(null)
-  }
-
-  useEffect(() => {
-    if (!user) return
-    setStatsError('')
-    getDashboardStats()
-      .then(setStats)
-      .catch((err) => setStatsError(err.message || 'Failed to load stats'))
-  }, [user])
-
-  if (!user) {
-    return (
-      <div className="app login-page">
-        <div className="login-card">
-          <h1>Dental Clinic IMS</h1>
-          <p className="subtitle">Sign in</p>
-          <form onSubmit={handleLogin}>
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
-            {error && <p className="error">{error}</p>}
-            <button type="submit" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
-            </button>
-          </form>
-          <p className="hint">Test: receptionist / dental123</p>
-        </div>
-      </div>
-    )
-  }
-
+function AppRoutes({ user, onLogout, onLogin, notify }) {
   return (
-    <div className="app dashboard">
-      <header>
-        <h1>Dental Clinic IMS</h1>
-        <div className="user-info">
-          <span>{user.username}</span>
-          <span className="role">({user.role})</span>
-          <button type="button" onClick={handleLogout}>Sign out</button>
-        </div>
-      </header>
-      <main>
-        <h2>Dashboard</h2>
-        {statsError && <p className="error">{statsError}</p>}
-        {stats && (
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-value">{stats.monthlyRevenue ?? '-'}</div>
-              <div className="stat-label">Monthly revenue</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{stats.todayAppointments ?? '-'}</div>
-              <div className="stat-label">Today's appointments</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{stats.totalPatients ?? '-'}</div>
-              <div className="stat-label">Total patients</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{stats.lowStockCount ?? '-'}</div>
-              <div className="stat-label">Low stock items</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{stats.pendingBills ?? '-'}</div>
-              <div className="stat-label">Pending bills</div>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+    <Routes>
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <PublicHome />} />
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/dashboard" replace /> : <LoginPage onLogin={onLogin} />}
+      />
+      <Route
+        element={
+          user ? (
+            <ProtectedLayout user={user} onLogout={onLogout} notify={notify} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/patients" element={<PatientsPage />} />
+        <Route path="/patients/:id" element={<PatientDetailPage />} />
+        <Route path="/billing" element={<BillingPage />} />
+        <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="/visits/:appointmentId" element={<VisitPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} replace />} />
+    </Routes>
   )
 }
 
-export default App
+export default function App() {
+  const [user, setUser] = useState(() => readStoredUser())
+  const [toasts, setToasts] = useState([])
+
+  function handleLogin(userData) {
+    setUser(userData)
+    saveStoredUser(userData)
+  }
+
+  function handleLogout() {
+    setUser(null)
+    saveStoredUser(null)
+  }
+
+  function dismissToast(id) {
+    setToasts((current) => current.filter((toast) => toast.id !== id))
+  }
+
+  function notify(message, type = 'success') {
+    const id = `${Date.now()}-${Math.random()}`
+    setToasts((current) => [...current, { id, message, type }].slice(-4))
+    window.setTimeout(() => dismissToast(id), 3600)
+  }
+
+  return (
+    <HashRouter>
+      <AppRoutes user={user} onLogout={handleLogout} onLogin={handleLogin} notify={notify} />
+      <ToastStack toasts={toasts} dismissToast={dismissToast} />
+    </HashRouter>
+  )
+}
