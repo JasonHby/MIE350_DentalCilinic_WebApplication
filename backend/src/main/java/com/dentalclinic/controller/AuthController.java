@@ -5,6 +5,9 @@ import com.dentalclinic.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.dentalclinic.dto.LoginRequestDTO;
+import com.dentalclinic.dto.LoginResponseDTO;
+
 
 import java.util.Map;
 import java.util.Optional;
@@ -20,9 +23,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String username = credentials.get("username");
-        String password = credentials.get("password");
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
 
         if (username == null || password == null || username.isBlank() || password.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -33,11 +36,13 @@ public class AuthController {
 
         if (user.isPresent()) {
             User u = user.get();
-            return ResponseEntity.ok(Map.of(
-                    "userId", u.getUserId(),
-                    "username", u.getUsername(),
-                    "role", u.getRole()
-            ));
+
+            LoginResponseDTO responseDTO = new LoginResponseDTO();
+            responseDTO.setUserId(u.getUserId());
+            responseDTO.setUsername(u.getUsername());
+            responseDTO.setRole(u.getRole());
+
+            return ResponseEntity.ok(responseDTO);
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
