@@ -99,7 +99,8 @@ export default function PatientDetailPage() {
     }
     try {
       if (editingAppointmentId) {
-        await updateAppointment(editingAppointmentId, payload)
+        const currentAppointment = appointments.find((appointment) => appointment.appointmentId === editingAppointmentId)
+        await updateAppointment(editingAppointmentId, payload, currentAppointment)
         notify('Appointment updated.')
       } else {
         await createAppointment(payload)
@@ -112,10 +113,10 @@ export default function PatientDetailPage() {
     }
   }
 
-  async function cancelAppointmentRecord(appointmentId) {
+  async function cancelAppointmentRecord(appointment) {
     if (!window.confirm('Cancel this appointment?')) return
     try {
-      await updateAppointment(appointmentId, { status: 'Cancelled' })
+      await updateAppointment(appointment.appointmentId, { status: 'Cancelled' }, appointment)
       notify('Appointment cancelled.')
       loadDetail()
     } catch (err) {
@@ -233,7 +234,9 @@ export default function PatientDetailPage() {
                       <td>{formatDate(appointment.appointmentDate)}</td>
                       <td>{formatTime(appointment.appointmentTime)}</td>
                       <td>
-                        {appointment.dentist
+                        {appointment.dentistName
+                          ? `Dr. ${appointment.dentistName}`
+                          : appointment.dentist
                           ? `Dr. ${appointment.dentist.firstName} ${appointment.dentist.lastName}`
                           : `Dentist #${appointment.dentistId}`}
                       </td>
@@ -249,7 +252,7 @@ export default function PatientDetailPage() {
                             <button
                               type="button"
                               className="danger-button"
-                              onClick={() => cancelAppointmentRecord(appointment.appointmentId)}
+                              onClick={() => cancelAppointmentRecord(appointment)}
                             >
                               Cancel
                             </button>
@@ -287,7 +290,13 @@ export default function PatientDetailPage() {
                 <div className="visit-card-header">
                   <strong>{formatDate(appointment.appointmentDate)}</strong>
                   <span>
-                    {appointment.dentist ? `Dr. ${appointment.dentist.lastName}` : `Dentist #${appointment.dentistId}`}
+                    {visit.dentistName
+                      ? `Dr. ${visit.dentistName}`
+                      : appointment.dentistName
+                      ? `Dr. ${appointment.dentistName}`
+                      : appointment.dentist
+                      ? `Dr. ${appointment.dentist.lastName}`
+                      : `Dentist #${appointment.dentistId}`}
                   </span>
                 </div>
                 <p><strong>Chief complaint:</strong> {visit.chiefComplaint || '-'}</p>

@@ -68,7 +68,7 @@ export default function VisitPage() {
 
   async function startVisit() {
     try {
-      await updateAppointment(appointmentId, { status: 'InProgress' })
+      await updateAppointment(appointmentId, { status: 'InProgress' }, appointment)
       notify('Visit started.')
       loadVisitWorkspace()
     } catch (err) {
@@ -172,7 +172,9 @@ export default function VisitPage() {
             <h3>Appointment</h3>
             <p>
               <strong>Dentist:</strong>{' '}
-              {appointment.dentist
+              {appointment.dentistName
+                ? `Dr. ${appointment.dentistName}`
+                : appointment.dentist
                 ? `Dr. ${appointment.dentist.firstName} ${appointment.dentist.lastName}`
                 : `Dentist #${appointment.dentistId}`}
             </p>

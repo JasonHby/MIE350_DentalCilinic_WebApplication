@@ -89,7 +89,9 @@ export default function SchedulePage() {
                     <StatusBadge status={appointment.status} />
                   </div>
                   <h3>
-                    {appointment.patient
+                    {appointment.patientName
+                      ? appointment.patientName
+                      : appointment.patient
                       ? `${appointment.patient.firstName} ${appointment.patient.lastName}`
                       : `Patient #${appointment.patientId}`}
                   </h3>

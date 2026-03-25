@@ -45,6 +45,18 @@ function ensureSeconds(time) {
   return /^\d{2}:\d{2}$/.test(time) ? `${time}:00` : time
 }
 
+function appointmentRequestBody(payload = {}, fallback = {}) {
+  return {
+    patientId: payload.patientId ?? fallback.patientId ?? null,
+    dentistId: payload.dentistId ?? fallback.dentistId ?? null,
+    appointmentDate: payload.appointmentDate ?? fallback.appointmentDate ?? null,
+    appointmentTime: ensureSeconds(payload.appointmentTime ?? fallback.appointmentTime ?? null),
+    duration: payload.duration ?? fallback.duration ?? null,
+    status: payload.status ?? fallback.status ?? null,
+    notes: payload.notes ?? fallback.notes ?? null,
+  }
+}
+
 export function login(username, password) {
   return apiRequest('/api/auth/login', {
     method: 'POST',
@@ -103,21 +115,14 @@ export function getAppointment(id) {
 export function createAppointment(payload) {
   return apiRequest('/api/appointments', {
     method: 'POST',
-    body: JSON.stringify({
-      ...payload,
-      appointmentTime: ensureSeconds(payload.appointmentTime),
-    }),
+    body: JSON.stringify(appointmentRequestBody(payload)),
   })
 }
 
-export function updateAppointment(id, payload) {
-  const nextPayload = { ...payload }
-  if (nextPayload.appointmentTime) {
-    nextPayload.appointmentTime = ensureSeconds(nextPayload.appointmentTime)
-  }
+export function updateAppointment(id, payload, currentAppointment = {}) {
   return apiRequest(`/api/appointments/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(nextPayload),
+    body: JSON.stringify(appointmentRequestBody(payload, currentAppointment)),
   })
 }
 
